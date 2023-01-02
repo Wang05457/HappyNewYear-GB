@@ -5,7 +5,7 @@ By Group 5
 - Ziqi WANG 999005457
 - Xian ZHANG 999009111
 
-## Description
+## Descriptions
 Containing 3 scenes: TITLE, NIGHT SKY and ENDING.
 ### Title
 -  2023 GO! and Group5's logo
