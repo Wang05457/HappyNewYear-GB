@@ -12,8 +12,12 @@ Containing 3 scenes: TITLE, NIGHT SKY and ENDING.
 -  scolling Y background
 
 ### Night Sky
-- sub - scene1: night sky with shining stars
-- sub - scene2: night sky with scrolling X background and falling star sprite
+- subscene1: night sky with shining stars
+- subscene2: night sky with scrolling X background and falling star sprite
+
+### Ending
+- subscene1: wishing
+- subscene2: happy new year and thanks
 
 ## Makefile
 Containg two basic operations:
