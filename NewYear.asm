@@ -3,304 +3,299 @@ INCLUDE "hardware.inc"
 ;--------------------reusing codes from lab---------------
 SECTION "Header", ROM0[$100]
 
-		jp EntryPoint
+	jp EntryPoint
 
-		ds $150 - @, 0 ; Make room for the header
+	ds $150 - @, 0 ; Make room for the header
 
 EntryPoint:
-		; Shut down audio circuitry
-		ld a, 0
-		ld [rNR52], a
+	; Shut down audio circuitry
+	ld a, 0
+	ld [rNR52], a
 
-		call WaitVBlank
+	call WaitVBlank
 
-		; Turn the LCD off
-		ld a, 0
-		ld [rLCDC], a
+	; Turn the LCD off
+	ld a, 0
+	ld [rLCDC], a
 
-		; Copy the tile data of title
-		ld de, Tiles_title
-		ld hl, $9000
-		ld bc, Tiles_titleEnd - Tiles_title
-		call Memcopy
+	; Copy the tile data of title
+	ld de, Tiles_title
+	ld hl, $9000
+	ld bc, Tiles_titleEnd - Tiles_title
+	call Memcpy
 		
-		; Copy the tilemap of title
-		ld de, Tilemap_title
-		ld hl, $9800
-		ld bc, Tilemap_titleEnd - Tilemap_title
-		call Memcopy
+	; Copy the tilemap of title
+	ld de, Tilemap_title
+	ld hl, $9800
+	ld bc, Tilemap_titleEnd - Tilemap_title
+	call Memcpy
 
-		; Copy the tile data of sprite
-	    ld de, TileSprite
-	    ld hl, $8000
-	    ld bc, TileSpriteEnd - TileSprite
-	    call Memcopy
+	; Copy the tile data of sprite
+	ld de, TileSprite
+	ld hl, $8000
+	ld bc, TileSpriteEnd - TileSprite
+	call Memcpy
 
-		;clear the OAM
-	    xor a, a 			;set a to ZERO
-	    ld b, 160
-	    ld hl, _OAMRAM		;load OAM to hl
+	;clear the OAM
+	xor a, a 			;set a to ZERO
+	ld b, 160
+	ld hl, _OAMRAM			;load OAM to hl
 ClearOam:
-	    ld [hli], a
-	    dec b
-	    jp nz, ClearOam
+	ld [hli], a
+	dec b
+	jp nz, ClearOam
 
-	    ;write the object
-	    ld hl, _OAMRAM
-	    ld a, 0 + 16 		;Y offset = 16, ini = 0
-	    ld [hli], a     	
-	    ld a, 0 + 8 		;X offset = 8, ini = 0
-	    ld [hli], a
-	    ld a, 0 			;set ID and attribute to 0
-	    ld [hli], a
-	    ld [hl], a
+ 	;write the object
+	ld hl, _OAMRAM
+	ld a, 0 + 16 			;Y offset = 16, ini = 0
+	ld [hli], a     	
+	ld a, 0 + 8 			;X offset = 8, ini = 0
+	ld [hli], a
+	ld a, 0 			;set ID and attribute to 0
+	ld [hli], a
+	ld [hl], a
 
-		; Turn the LCD on
-		ld a, LCDCF_ON | LCDCF_BGON
-		ld [rLCDC], a
+	;Turn the LCD on
+	ld a, LCDCF_ON | LCDCF_BGON
+	ld [rLCDC], a
 
-		;set the pallette to normal one
-		ld a, %11100100
-		ld [rBGP], a
-
-;----------------title--------------------
+	;set the pallette to normal one
+	ld a, %11100100
+	ld [rBGP], a
+;-------------------------------------------------------
+;----------------title--------------------------
 Title:
-	  	ld hl, 1000 		;counter, to wait for a while	
+	ld hl, 1000 			;counter, to wait for a while	
 
-	  	call Wait
+	call Wait
 
-		ld hl, 110 			;counter
-		ld c, 2 			;slow down factor
+	ld hl, 110 			;counter
+	ld c, 2 			;slow down factor
 
 ;scroll-y
 .loop:
-		ld a, [rLY]
-		cp 144
-		jp nz, .loop
+	ld a, [rLY]
+	cp 144
+	jp nz, .loop
 
-		dec c
-		jp nz, .loop
-		ld c, 2
+	dec c
+	jp nz, .loop
+	ld c, 2
 
-		ld a, [rSCY]
-		inc a
-		ld [rSCY], a
+	ld a, [rSCY]
+	inc a
+	ld [rSCY], a
 
-		dec hl
-		ld a, h
-		or l
-		jp nz, .loop
-
+	dec hl
+	ld a, h
+	or l
+	jp nz, .loop
 ;-----------------Stars Theme-------------------
-		;change the tile
-		WaitVBlank1:
-		ld a, [rLY]
-		cp 144
-		jp c, WaitVBlank1
+	;change the tile
+	WaitVBlank1:
+	ld a, [rLY]
+	cp 144
+	jp c, WaitVBlank1
 
-		; Turn the LCD off
-		ld a, 0
-		ld [rLCDC], a
+	; Turn the LCD off
+	ld a, 0
+	ld [rLCDC], a
 
-		; Copy the tile data
-		ld de, Tiles_stars
-		ld hl, $9000
-		ld bc, Tiles_starsEnd - Tiles_stars
-		call Memcopy
+	; Copy the tile data
+	ld de, Tiles_stars
+	ld hl, $9000
+	ld bc, Tiles_starsEnd - Tiles_stars
+	call Memcpy
 
-		; Copy the tilemap
-		ld de, Tilemap_stars
-		ld hl, $9800
-		ld bc, Tilemap_starsEnd - Tilemap_stars
-		call Memcopy
+	; Copy the tilemap
+	ld de, Tilemap_stars
+	ld hl, $9800
+	ld bc, Tilemap_starsEnd - Tilemap_stars
+	call Memcpy
 
-		; Turn the LCD on
-		ld a, LCDCF_ON | LCDCF_BGON
-		ld [rLCDC], a
-
+	; Turn the LCD on
+	ld a, LCDCF_ON | LCDCF_BGON
+	ld [rLCDC], a
 ;----------------scene1--------------------------	    		
-		;initialize the wFrameCounter
-		ld a, 0
-	    ld [wFrameCounter], a
+	;initialize the wFrameCounter
+	ld a, 0
+	ld [wFrameCounter], a
 
-	    ;counter to control the bling loop
-	    ld hl, 30 	
+	;counter to control the bling loop
+	ld hl, 30 	
 
 bling:
 ;-----------reusing codes from internet-----------
-		ld a, [rLY]
-	    cp 144
-	    jp nc, bling
+	ld a, [rLY]
+	cp 144
+	jp nc, bling
 WaitVBlank_:
-	    ld a, [rLY]
-	    cp 144
-	    jp c, WaitVBlank_
+	ld a, [rLY]
+	cp 144
+	jp c, WaitVBlank_
 
-		ld a, [wFrameCounter]
-	    inc a
-	    ld [wFrameCounter], a
-	    cp a, 15 
+	ld a, [wFrameCounter]
+	inc a
+	ld [wFrameCounter], a
+	cp a, 15 
 
-	    ; Every 15 frames (a quarter of a second), run the following code
-	    jp nz, bling
+	; Every 15 frames (a quarter of a second), run the following code
+	jp nz, bling
 
     	; Reset the frame counter back to 0
-	    ld a, 0
-	    ld [wFrameCounter], a
-;-------------------------------------------
+	ld a, 0
+	ld [wFrameCounter], a
+;----------------------------------------------------
     	dec hl
-		ld a, h
-		or l
-		jp z, Scene2
+	ld a, h
+	or l
+	jp z, Scene2
 
-	    ld a, 0 				;b==0 enter s0
-	    cp b
-	    jp z, .s1
-	    inc a 					;b==1 enter s2
-	    cp b
-	    jp z, .s2
+	ld a, 0 			;b==0 enter s0
+	cp b
+	jp z, .s1
+	inc a 				;b==1 enter s2
+	cp b
+	jp z, .s2
    
 .s0:
-		ld a, %11111111
-		ld [rBGP], a
-		ld b, 0
-		jp bling
+	ld a, %11111111
+	ld [rBGP], a
+	ld b, 0
+	jp bling
 .s1:
-		ld a, %11111110
-		ld [rBGP], a
-		ld b, 1
-		jp bling
+	ld a, %11111110
+	ld [rBGP], a
+	ld b, 1
+	jp bling
 .s2:
-		ld a, %11111001
-		ld [rBGP], a
-		ld b, 2
-		jp bling
-
+	ld a, %11111001
+	ld [rBGP], a
+	ld b, 2
+	jp bling
 ;-------------------Scnene2------------------
 Scene2:
-		ld hl, 515 			;counter
-		ld c, 5 			;slow down factor
+	ld hl, 515 			;counter
+	ld c, 5 			;slow down factor
 
-		;Turn the LCD on
-	    ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON
-	    ld [rLCDC], a
+	;Turn the LCD on
+	ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON
+	ld [rLCDC], a
 
-	    ;initialize display registers
-	    ld a, %11100100
-	    ld [rBGP], a
-	    ld a, %11100100
-	    ld [rOBP0], a
+	;initialize display registers
+	ld a, %11100100
+	ld [rBGP], a
+	ld a, %11100100
+	ld [rOBP0], a
 
 .loop:
-		ld a, [rLY]
-		cp 144
-		jp nz, .loop
+	ld a, [rLY]
+	cp 144
+	jp nz, .loop
 
-		dec c
-		jp nz, .loop
-		ld c, 5
+	dec c
+	jp nz, .loop
+	ld c, 5
 
-		;scroll X direction
-		ld a, [rSCX]
-		inc a
-		ld [rSCX], a
+	;scroll X direction
+	ld a, [rSCX]
+	inc a
+	ld [rSCX], a
 
-		; Move the sprite from LU to RD
-	    ld a, [_OAMRAM + 1]
-	    inc a
-	    ld [_OAMRAM + 1], a
-		
-		ld a, [_OAMRAM + 1]
-	    inc a
-	    ld [_OAMRAM ], a
+	; Move the sprite from LU to RD
+	ld a, [_OAMRAM + 1]
+	inc a
+	ld [_OAMRAM + 1], a
 
-		dec hl
-		ld a, h
-		or l
-		jp nz, .loop
+	ld a, [_OAMRAM + 1]
+	inc a
+	ld [_OAMRAM ], a
 
+	dec hl
+	ld a, h
+	or l
+	jp nz, .loop
 ;---------------------Ending------------------
-		call WaitVBlank
+	call WaitVBlank
 
-		; Turn the LCD off
-		ld a, 0
-		ld [rLCDC], a
+	; Turn the LCD off
+	ld a, 0
+	ld [rLCDC], a
 
-		; Copy the tile data
-		ld de, Tiles_last
-		ld hl, $9000
-		ld bc, Tiles_lastEnd - Tiles_last
-		call Memcopy
+	; Copy the tile data
+	ld de, Tiles_last
+	ld hl, $9000
+	ld bc, Tiles_lastEnd - Tiles_last
+	call Memcpy
 
-		; Copy the tilemap
-		ld de, Tilemap_last
-		ld hl, $9800
-		ld bc, Tilemap_lastEnd - Tilemap_last
-		call Memcopy
+	; Copy the tilemap
+	ld de, Tilemap_last
+	ld hl, $9800
+	ld bc, Tilemap_lastEnd - Tilemap_last
+	call Memcpy
 
-		; Turn the LCD on
-		ld a, LCDCF_ON | LCDCF_BGON
-		ld [rLCDC], a
+	; Turn the LCD on
+	ld a, LCDCF_ON | LCDCF_BGON
+	ld [rLCDC], a
 
-		ld a, %11100100
-		ld [rBGP], a
+	ld a, %11100100
+	ld [rBGP], a
 
-		ld hl, 1000 		;counter for waiting	
-		call Wait
-		
-		;scroll_y
-		ld hl, 110
-		ld c, 15
+	ld hl, 1000 			;counter for waiting	
+	call Wait
+
+	;scroll_y
+	ld hl, 110
+	ld c, 15
 
 .wait:
-		ld a, [rLY]
-		cp 144
-		jp nz, .wait
+	ld a, [rLY]
+	cp 144
+	jp nz, .wait
 
-		dec c
-		jp nz, .wait
-		ld c, 15
+	dec c
+	jp nz, .wait
+	ld c, 15
 
-		ld a, [rSCY]
-		dec a
-		ld [rSCY], a
+	ld a, [rSCY]
+	dec a
+	ld [rSCY], a
 
-		dec hl
-		ld a, h
-		or l
-		jp nz, .wait
+	dec hl
+	ld a, h
+	or l
+	jp nz, .wait
 
 Done:
 	jp Done
 
-
 WaitVBlank:
-		ld a, [rLY]
-		cp 144
-		jp c, WaitVBlank
-		ret
+	ld a, [rLY]
+	cp 144
+	jp c, WaitVBlank
+	ret
 
-Memcopy:
-	    ld a, [de]
-	    ld [hli], a
-	    inc de
-	    dec bc
-	    ld a, b
-	    or a, c
-	    jp nz, Memcopy
-	    ret
+Memcpy:
+	ld a, [de]
+	ld [hli], a
+	inc de
+	dec bc
+	ld a, b
+	or a, c
+	jp nz, Memcpy
+	ret
 
 ;keep still
 Wait:
-		ld a, [rLY]
-		cp 144
-		jp nz, Wait
+	ld a, [rLY]
+	cp 144
+	jp nz, Wait
 
-		dec hl
-		ld a, h
-		or l
-		jp nz, Wait
-		ret
+	dec hl
+	ld a, h
+	or l
+	jp nz, Wait
+	ret
 
 SECTION "Tile data", ROM0
 Tilemap_title:
