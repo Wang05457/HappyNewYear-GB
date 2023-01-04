@@ -91,10 +91,7 @@ Title:
 	jp nz, .loop
 ;-----------------Stars Theme-------------------
 	;change the tile
-	WaitVBlank1:
-	ld a, [rLY]
-	cp 144
-	jp c, WaitVBlank1
+	call WaitVBlank
 
 	; Turn the LCD off
 	ld a, 0
@@ -128,10 +125,8 @@ bling:
 	ld a, [rLY]
 	cp 144
 	jp nc, bling
-WaitVBlank_:
-	ld a, [rLY]
-	cp 144
-	jp c, WaitVBlank_
+	
+	call WaitVBlank
 
 	ld a, [wFrameCounter]
 	inc a
