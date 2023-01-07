@@ -1,4 +1,5 @@
 INCLUDE "hardware.inc"
+
 ;--------------------reusing codes from lab---------------
 SECTION "Header", ROM0[$100]
 
@@ -8,14 +9,13 @@ SECTION "Header", ROM0[$100]
 
 EntryPoint:
 	; Shut down audio circuitry
-	ld a, 0
+	xor a
 	ld [rNR52], a
 
 	call WaitVBlank
 
 	; Turn the LCD off
-	ld a, 0
-	ld [rLCDC], a
+	call LCD_Off
 
 	; Copy the tile data of title
 	ld de, Tiles_title
@@ -36,13 +36,9 @@ EntryPoint:
 	call Memcpy
 
 	;clear the OAM
-	xor a, a 			;set a to ZERO
+	xor a 			;set a to ZERO
 	ld b, 160
-	ld hl, _OAMRAM			;load OAM to hl
-ClearOam:
-	ld [hli], a
-	dec b
-	jp nz, ClearOam
+	call ClearOam
 
  	;write the object
 	ld hl, _OAMRAM
@@ -50,17 +46,15 @@ ClearOam:
 	ld [hli], a     	
 	ld a, 0 + 8 			;X offset = 8, ini = 0
 	ld [hli], a
-	ld a, 0 			;set ID and attribute to 0
+	xor a 					;set ID and attribute to 0
 	ld [hli], a
 	ld [hl], a
 
 	;Turn the LCD on
-	ld a, LCDCF_ON | LCDCF_BGON
-	ld [rLCDC], a
+	call LCD_On
 
-	;set the pallette to normal one
-	ld a, %11100100
-	ld [rBGP], a
+	;set the pallette to default one
+	call DefaultPalette
 ;-------------------------------------------------------
 ;----------------title--------------------------
 Title:
@@ -94,8 +88,7 @@ Title:
 	call WaitVBlank
 
 	; Turn the LCD off
-	ld a, 0
-	ld [rLCDC], a
+	call LCD_Off
 
 	; Copy the tile data
 	ld de, Tiles_stars
@@ -110,18 +103,17 @@ Title:
 	call Memcpy
 
 	; Turn the LCD on
-	ld a, LCDCF_ON | LCDCF_BGON
-	ld [rLCDC], a
-;----------------scene1--------------------------	    		
+	call LCD_On
+;----------------SubScene1--------------------------	    		
+;-----------reusing codes from internet-------------	
 	;initialize the wFrameCounter
-	ld a, 0
+	xor a
 	ld [wFrameCounter], a
 
 	;counter to control the bling loop
 	ld hl, 30 	
 
 bling:
-;-----------reusing codes from internet-----------
 	ld a, [rLY]
 	cp 144
 	jp nc, bling
@@ -136,51 +128,47 @@ bling:
 	; Every 15 frames (a quarter of a second), run the following code
 	jp nz, bling
 
-    	; Reset the frame counter back to 0
-	ld a, 0
+    ; Reset the frame counter back to 0
+	xor a
 	ld [wFrameCounter], a
 ;----------------------------------------------------
-    	dec hl
+    dec hl
 	ld a, h
 	or l
 	jp z, Scene2
 
-	ld a, 0 			;b==0 enter s0
+	xor a 			;b==0 enter s0
 	cp b
-	jp z, .s1
+	jr z, .s1
 	inc a 				;b==1 enter s2
 	cp b
-	jp z, .s2
+	jr z, .s2
    
 .s0:
 	ld a, %11111111
 	ld [rBGP], a
 	ld b, 0
-	jp bling
+	jr bling
 .s1:
 	ld a, %11111110
 	ld [rBGP], a
 	ld b, 1
-	jp bling
+	jr bling
 .s2:
 	ld a, %11111001
 	ld [rBGP], a
 	ld b, 2
-	jp bling
-;-------------------Scnene2------------------
+	jr bling
+;-------------------SubScnene2------------------
 Scene2:
 	ld hl, 515 			;counter
 	ld c, 5 			;slow down factor
 
 	;Turn the LCD on
-	ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON
-	ld [rLCDC], a
+	call LCD_On_OBJ
 
 	;initialize display registers
-	ld a, %11100100
-	ld [rBGP], a
-	ld a, %11100100
-	ld [rOBP0], a
+	call DefaultPalette
 
 .loop:
 	ld a, [rLY]
@@ -210,11 +198,11 @@ Scene2:
 	or l
 	jp nz, .loop
 ;---------------------Ending------------------
+Ending:	
 	call WaitVBlank
 
 	; Turn the LCD off
-	ld a, 0
-	ld [rLCDC], a
+	call LCD_Off
 
 	; Copy the tile data
 	ld de, Tiles_last
@@ -229,11 +217,9 @@ Scene2:
 	call Memcpy
 
 	; Turn the LCD on
-	ld a, LCDCF_ON | LCDCF_BGON
-	ld [rLCDC], a
+	call LCD_On
 
-	ld a, %11100100
-	ld [rBGP], a
+	call DefaultPalette
 
 	ld hl, 1000 			;counter for waiting	
 	call Wait
@@ -260,9 +246,89 @@ Scene2:
 	or l
 	jp nz, .wait
 
+	call WaitVBlank
+
+	; Turn the LCD off
+	call LCD_Off
+	
+	; Copy the tile data of sprite
+	ld de, TileSprite2
+	ld hl, $8000
+	ld bc, TileSprite2End - TileSprite2
+	call Memcpy
+
+	;clear the OAM
+	xor a 					;set a to ZERO
+	ld b, 160
+	call ClearOam
+
+	;write the object
+	ld hl, _OAMRAM
+	ld a, 70 + 16 			
+	ld [hli], a     	
+	ld a, 20 + 8	
+	ld [hli], a
+	xor a 			
+	ld [hli], a
+	ld [hli], a
+
+	ld a, 70 + 16 			
+	ld [hli], a     	
+	ld a, 132 + 8	
+	ld [hli], a
+	xor a 			
+	ld [hli], a
+	ld [hli], a
+
+	;Turn the LCD on
+	call LCD_On_OBJ
+
+	;initialize display registers
+	call DefaultPalette
+;-----------reusing codes from internet-----------
+	;initialize the wFrameCounter
+	xor a
+	ld [wFrameCounter], a
+.shine:
+	ld a, [rLY]
+	cp 144
+	jp nc, .shine
+	
+	call WaitVBlank
+
+	ld a, [wFrameCounter]
+	inc a
+	ld [wFrameCounter], a
+	cp a, 30 
+
+	; Every 30 frames, run the following code
+	jp nz, .shine
+
+    ; Reset the frame counter back to 0
+	xor a
+	ld [wFrameCounter], a
+;--------------------------------------------------
+	xor a 			
+	cp b
+	jr z, .s1
+   
+.s0:
+	ld a, %11111001
+	ld [rOBP0], a
+	ld b, 0
+	jr .shine
+.s1:
+	ld a, %11100100
+	ld [rOBP0], a
+	ld b, 1
+	jr .shine
+
+
 Done:
 	jp Done
 
+
+SECTION "Functions", ROM0
 WaitVBlank:
 	ld a, [rLY]
 	cp 144
@@ -279,6 +345,35 @@ Memcpy:
 	jp nz, Memcpy
 	ret
 
+ClearOam:
+	ld hl, _OAMRAM			
+.clear:
+	ld [hli], a
+	dec b
+	jp nz, .clear
+	ret
+
+DefaultPalette:
+    ld a, %11100100
+    ld [rBGP], a
+    ld [rOBP0], a
+    ret
+
+LCD_Off:
+    xor a
+    ld [rLCDC], a
+    ret
+
+LCD_On:
+	ld a, LCDCF_ON | LCDCF_BGON
+	ld [rLCDC], a
+	ret
+
+LCD_On_OBJ:
+	ld a, LCDCF_ON | LCDCF_BGON | LCDCF_OBJON
+	ld [rLCDC], a
+	ret
+
 ;keep still
 Wait:
 	ld a, [rLY]
@@ -290,6 +385,7 @@ Wait:
 	or l
 	jp nz, Wait
 	ret
+
 
 SECTION "Tile data", ROM0
 Tilemap_title:
@@ -728,10 +824,16 @@ Tilemap_last:
 	DB $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 Tilemap_lastEnd:
 
+SECTION "Sprites", ROM0
 TileSprite:
 	DB $89,$00,$42,$08,$2c,$34,$b0,$5c
 	DB $0d,$3a,$34,$2c,$42,$10,$91,$00
 TileSpriteEnd:
+
+TileSprite2:
+	DB $00,$00,$24,$00,$66,$00,$18,$00
+	DB $18,$00,$66,$00,$24,$00,$00,$00
+TileSprite2End:
 
 SECTION "Counter", WRAM0
 wFrameCounter: db
