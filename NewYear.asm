@@ -81,6 +81,7 @@ Title:
 	or l
 	jp nz, .loop
 ;-----------------Stars Theme-------------------
+NightSky:
 	;change the tile
 	call WaitVBlank
 
