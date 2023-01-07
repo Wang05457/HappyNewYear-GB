@@ -4,7 +4,6 @@ INCLUDE "hardware.inc"
 SECTION "Header", ROM0[$100]
 
 	jp EntryPoint
-
 	ds $150 - @, 0 ; Make room for the header
 
 EntryPoint:
@@ -36,7 +35,7 @@ EntryPoint:
 	call Memcpy
 
 	;clear the OAM
-	xor a 			;set a to ZERO
+	xor a 			
 	ld b, 160
 	call ClearOam
 
@@ -46,7 +45,7 @@ EntryPoint:
 	ld [hli], a     	
 	ld a, 0 + 8 			;X offset = 8, ini = 0
 	ld [hli], a
-	xor a 					;set ID and attribute to 0
+	xor a 				;set ID and attribute to 0
 	ld [hli], a
 	ld [hl], a
 
@@ -59,10 +58,9 @@ EntryPoint:
 ;----------------title--------------------------
 Title:
 	ld hl, 1000 			;counter, to wait for a while	
-
 	call Wait
 
-	ld hl, 110 			;counter
+	ld hl, 110 			;counter for the scrolling loop
 	ld c, 2 			;slow down factor
 
 ;scroll-y
@@ -128,11 +126,11 @@ bling:
 	; Every 15 frames (a quarter of a second), run the following code
 	jp nz, bling
 
-    ; Reset the frame counter back to 0
+	; Reset the frame counter back to 0
 	xor a
 	ld [wFrameCounter], a
 ;----------------------------------------------------
-    dec hl
+	dec hl
 	ld a, h
 	or l
 	jp z, Scene2
@@ -140,7 +138,7 @@ bling:
 	xor a 			;b==0 enter s0
 	cp b
 	jr z, .s1
-	inc a 				;b==1 enter s2
+	inc a 			;b==1 enter s2
 	cp b
 	jr z, .s2
    
@@ -161,8 +159,8 @@ bling:
 	jr bling
 ;-------------------SubScnene2------------------
 Scene2:
-	ld hl, 515 			;counter
-	ld c, 5 			;slow down factor
+	ld hl, 515 		;counter for the scrolling loop
+	ld c, 5 		;slow down factor
 
 	;Turn the LCD on
 	call LCD_On_OBJ
@@ -221,12 +219,12 @@ Ending:
 
 	call DefaultPalette
 
-	ld hl, 1000 			;counter for waiting	
+	ld hl, 1000 		;counter, to wait for a while	
 	call Wait
 
-	;scroll_y
-	ld hl, 110
-	ld c, 15
+	;scroll_y 		
+	ld hl, 110 		;counter for scrolling
+	ld c, 15 		;slow down factor
 
 .wait:
 	ld a, [rLY]
@@ -258,11 +256,11 @@ Ending:
 	call Memcpy
 
 	;clear the OAM
-	xor a 					;set a to ZERO
+	xor a 				
 	ld b, 160
 	call ClearOam
 
-	;write the object
+	;write the object1
 	ld hl, _OAMRAM
 	ld a, 70 + 16 			
 	ld [hli], a     	
@@ -271,7 +269,8 @@ Ending:
 	xor a 			
 	ld [hli], a
 	ld [hli], a
-
+	
+	;write the object2
 	ld a, 70 + 16 			
 	ld [hli], a     	
 	ld a, 132 + 8	
@@ -280,7 +279,7 @@ Ending:
 	ld [hli], a
 	ld [hli], a
 
-	;Turn the LCD on
+	;Turn the LCD on with OBJ
 	call LCD_On_OBJ
 
 	;initialize display registers
@@ -304,7 +303,7 @@ Ending:
 	; Every 30 frames, run the following code
 	jp nz, .shine
 
-    ; Reset the frame counter back to 0
+	; Reset the frame counter back to 0
 	xor a
 	ld [wFrameCounter], a
 ;--------------------------------------------------
@@ -323,12 +322,12 @@ Ending:
 	ld b, 1
 	jr .shine
 
-
 Done:
 	jp Done
 
 
 SECTION "Functions", ROM0
+
 WaitVBlank:
 	ld a, [rLY]
 	cp 144
@@ -385,7 +384,6 @@ Wait:
 	or l
 	jp nz, Wait
 	ret
-
 
 SECTION "Tile data", ROM0
 Tilemap_title:
@@ -824,7 +822,9 @@ Tilemap_last:
 	DB $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 Tilemap_lastEnd:
 
+
 SECTION "Sprites", ROM0
+
 TileSprite:
 	DB $89,$00,$42,$08,$2c,$34,$b0,$5c
 	DB $0d,$3a,$34,$2c,$42,$10,$91,$00
@@ -835,7 +835,9 @@ TileSprite2:
 	DB $18,$00,$66,$00,$24,$00,$00,$00
 TileSprite2End:
 
+
 SECTION "Counter", WRAM0
+
 wFrameCounter: db
 wCurKeys: db
 wNewKeys: db
