@@ -2,7 +2,6 @@ INCLUDE "hardware.inc"
 
 ;--------------------reusing codes from lab---------------
 SECTION "Header", ROM0[$100]
-
 	jp EntryPoint
 	ds $150 - @, 0 ; Make room for the header
 
@@ -327,7 +326,6 @@ Done:
 
 
 SECTION "Functions", ROM0
-
 WaitVBlank:
 	ld a, [rLY]
 	cp 144
@@ -353,15 +351,15 @@ ClearOam:
 	ret
 
 DefaultPalette:
-    ld a, %11100100
-    ld [rBGP], a
-    ld [rOBP0], a
-    ret
+	ld a, %11100100
+	ld [rBGP], a
+	ld [rOBP0], a
+	ret
 
 LCD_Off:
-    xor a
-    ld [rLCDC], a
-    ret
+	xor a
+	ld [rLCDC], a
+	ret
 
 LCD_On:
 	ld a, LCDCF_ON | LCDCF_BGON
@@ -384,6 +382,7 @@ Wait:
 	or l
 	jp nz, Wait
 	ret
+
 
 SECTION "Tile data", ROM0
 Tilemap_title:
@@ -824,7 +823,6 @@ Tilemap_lastEnd:
 
 
 SECTION "Sprites", ROM0
-
 TileSprite:
 	DB $89,$00,$42,$08,$2c,$34,$b0,$5c
 	DB $0d,$3a,$34,$2c,$42,$10,$91,$00
@@ -837,7 +835,6 @@ TileSprite2End:
 
 
 SECTION "Counter", WRAM0
-
 wFrameCounter: db
 wCurKeys: db
 wNewKeys: db
