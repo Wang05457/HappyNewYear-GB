@@ -14,12 +14,12 @@ Containing 3 scenes: TITLE, NIGHT SKY and ENDING.
 -  scolling Y background
 
 ### Night Sky
-- subscene1: night sky with shining stars
+- subscene1: night sky with shining stars background
 - subscene2: night sky with scrolling X background and falling star sprite
 
 ### Ending
-- subscene1: wishing
-- subscene2: happy new year and thanks
+- subscene1: wishing for a moment
+- subscene2: happy new year and thanks with shining sprites
 
 ## Makefile
 Containg two basic operations:
@@ -28,7 +28,7 @@ Containg two basic operations:
 
 ## Codes Reusing
 We use the codes from site: https://eldred.fr/gb-asm-tutorial/part2/objects.html
-with some modifications and codes about initialization, such as copytiles are from labs with modifications:
+and codes about initialization are from labs with modifications.
     
         
 
