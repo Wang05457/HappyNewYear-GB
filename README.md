@@ -11,15 +11,15 @@ Containing 3 scenes: TITLE, NIGHT SKY and ENDING.
 
 ### Title
 -  2023 GO! and Group5's logo
--  scolling Y background
+-  scolling Y-direction background
 
 ### Night Sky
 - subscene1: night sky with shining stars background
-- subscene2: night sky with scrolling X background and falling star sprite
+- subscene2: night sky with scrolling X-direction background and falling star sprite
 
 ### Ending
 - subscene1: wishing for a moment
-- subscene2: happy new year and thanks with shining sprites
+- subscene2: happy new year with shining sprites
 
 ## Makefile
 Containg two basic operations:
